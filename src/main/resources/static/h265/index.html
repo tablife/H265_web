@@ -32,6 +32,7 @@
         var webglPlayer = new WebGLPlayer(canvas, {preserveDrawingBuffer : false});
         var frame_width = 0, frame_height = 0;
 
+        document.getElementById('input_video').value = "file/h265/2.h265"
 
         var decoder = new Worker("decoder.js");
         decoder.onmessage = function(msg){
