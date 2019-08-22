@@ -1,0 +1,12 @@
+#gan
+gan:
+    debug: true
+    log_level: 2
+
+server:
+    port: 8888
+    tomcat:
+        maxHttpHeaderSize: 20480000
+spring:
+    resources:
+        static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${web.upload-path}

@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>WASM TEST</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="format-detection" content="telephone=no, email=no" />
+</head>
+
+<body>
+    <div>
+	<canvas id="playCanvas1" width="600px" height="400px" style="background-color: #F0F0F0;"></canvas>
+    </div>
+
+    <div style="padding-bottom: 30px;">
+        <p>请输入rtsp地址</p>
+        <input style="width: 240px;height: 40px;" id="input_video" type="text" value="">
+        <button style="width: 100px;height: 40px" onclick="play()">播放</button>
+        <button style="width: 100px;height: 40px" onclick="pause()">暂停</button>
+        <button style="width: 100px;height: 40px" onclick="fullscreen()">全屏</button>
+        <button style="width: 100px;height: 40px" onclick="exitfullscreen()">退出全屏</button>
+    </div>
+
+    <script src="pcm-player.js"></script>
+    <script src="webgl.js"></script>
+    <script type='text/javascript'>
+
+        var is_pause = false;
+        var canvas = document.getElementById("playCanvas1");
+        var webglPlayer = new WebGLPlayer(canvas, {preserveDrawingBuffer : false});
+        var frame_width = 0, frame_height = 0;
+
+
+        var decoder = new Worker("decoder.js");
+        decoder.onmessage = function(msg){
+            var msg_data = msg.data;
+            if(msg_data.t == "frame" && is_pause == 0){
+                if(frame_height == 0 || frame_width == 0){
+                    frame_height = msg_data.h;
+                    frame_width = msg_data.w;
+                    var rate = frame_width / frame_height;
+                    if(rate > (600 / 400)){
+                        canvas.setAttribute("width", "600px");
+                        canvas.setAttribute("height", (600/rate)+"px");
+                    }else{
+                        canvas.setAttribute("width", (400*rate)+"px");
+                        canvas.setAttribute("height", "400px");
+                    }
+                }
+                var data = msg_data.d;
+                var width = msg_data.w;
+                var height = msg_data.h;
+                var yLength = width * height;
+                var uvLength = (width / 2) * (height / 2);
+                webglPlayer.renderFrame(data, width, height, yLength, uvLength);
+            }
+        };
+
+        function play() {
+            if(is_pause == true){
+                is_pause = false;
+            }else{
+                var url_value = document.getElementById('input_video').value;
+                var ws_url = "ws://" + window.location.host + "/ws/rtsp";
+                decoder.postMessage({action : "play", url : url_value, ws : ws_url});
+            }
+        }
+
+        function pause() {
+            is_pause = true;
+        }
+
+        function fullscreen() {
+            webglPlayer.fullscreen();
+        }
+
+        function exitfullscreen() {
+            webglPlayer.exitfullscreen();
+        }
+
+    </script>
+</body>
+</html>
