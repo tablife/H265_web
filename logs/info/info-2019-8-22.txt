@@ -1,3 +1,0 @@
-
-2019/8/22 16:51:50.050:2019/8/22 16:51:49.049:info:gan.system.server.SystemServer:rootPath:D:\developer\ganbin\project\h265_web
-2019/8/22 16:51:50.050:2019/8/22 16:51:50.050:info:gan.system.server.SystemServer:addLibraryDir path:D:\developer\ganbin\project\h265_web\libs
